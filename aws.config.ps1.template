@@ -1,0 +1,5 @@
+# Paste your credential information and rename this file to 'aws.config.ps1'.
+
+$awsAccessKey = "PASTE YOUR ACCESS KEY HERE"
+$awsPrivateKey = "PASTE YOUR SECRET PRIVATE KEY HERE"
+$awsAssociateId = "PASTE YOUR ASSOCIATE ID HERE"
