@@ -15,17 +15,36 @@ $parameter = @{
 
 [xml]$doc = & "$myPath\Invoke-AmazonApi.ps1" $parameter
 
+if (!$doc) { return $null }
+
+#$doc.OuterXml | Out-File "$myPath\$isbn.xml"
+
+$foundError = $false
+foreach ($error in $doc.ItemLookupResponse.Items.Request.Errors.Error) {
+  Write-Warning $error.Message
+  $foundError = $true
+}
+if ($foundError) { return $null }
+
 $item = @($doc.ItemLookupResponse.Items.Item)[0]
 $attrs = $item.ItemAttributes
-$title = $attrs.Title
-$authors = $attrs.Author
-$isbn2 = $attrs.ISBN
-$imgUrl = $item.LargeImage.URL
+if (!$attrs) { return $null }
+$lang = @($attrs.Languages.Language) | ? { $_.Type -eq "Published" } | % { $_.Name }
 
-Write-Host "Title: $title"
-Write-Host "Authors: $authors"
-Write-Host "ISBN: $isbn2"
+$result = @{}
+$result.Add("ASIN", $item.ASIN)
+$result.Add("DetailsUrl", $item.DetailPageURL)
+$result.Add("ISBN", $attrs.ISBN)
+$result.Add("EAN", $attrs.EAN)
+$result.Add("Title", $attrs.Title)
+$result.Add("Authors", @($attrs.Author))
+$result.Add("Binding", $attrs.Binding)
+$result.Add("Pages", $attrs.NumberOfPages)
+$result.Add("Publisher", $attrs.Publisher)
+$result.Add("PublicationDate", $attrs.PublicationDate)
+$result.Add("PublicationLanguage", $lang)
+$result.Add("SmallImageUrl", $item.SmallImage.URL)
+$result.Add("MediumImageUrl", $item.MediumImage.URL)
+$result.Add("LargeImageUrl", $item.LargeImage.URL)
 
-start $imgUrl
-
-Write-Output $doc.OuterXml | Out-File "$myPath\result.xml"
+return $result

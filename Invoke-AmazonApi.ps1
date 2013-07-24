@@ -6,6 +6,10 @@
 )
 
 $myPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+if (-not (Test-Path "$myPath\aws.config.ps1")) {
+  throw "No AWS configuration found. Use the template to create the aws.config.ps1 file."
+  return $null
+}
 . $myPath\aws.config.ps1
 
 [Reflection.Assembly]::LoadWithPartialName("System.Web") | Out-Null
@@ -62,7 +66,7 @@ function build-signing-content($server, $path, $arguments) {
 function compute-hmac-sha256($data, $key) {
     $keyData = [Text.Encoding]::UTF8.GetBytes($key)
     $hmac = New-Object System.Security.Cryptography.HMACSHA256 (,$keyData)
-    $sigData $hmac.ComputeHash($data)
+    $sigData = $hmac.ComputeHash($data)
     $sig = [Convert]::ToBase64String($sigData)
     return $sig
 }
@@ -74,7 +78,7 @@ $allargs = @{}
 foreach ($key in $arguments.Keys) { $allargs.Add($key, $arguments[$key]) }
 $allargs.Add("AWSAccessKeyId", $awsAccessKey)
 $allargs.Add("AssociateTag", $awsAssociateId)
-$allargs.Add("Timestamp", $time.ToString("yyyy-MM-ddTHH:mm:ssZ"))
+$allargs.Add("Timestamp", [DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"))
 $allargs.Add("SignatureVersion", "2")
 $allargs.Add("SignatureMethod", "HmacSHA256")
 $query = build-query-string $allargs
