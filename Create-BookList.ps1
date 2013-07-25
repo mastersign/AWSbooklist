@@ -64,11 +64,21 @@ foreach($isbn in $list) {
   $res += "  <div class=`"booklist-description`">`n"
   $res += "    <div class=`"booklist-title`"><a href=`"$($info.DetailsUrl)`" target=`"_blank`">$($info.Title)</a></div>`n"
   $res += "    <div class=`"booklist-authors`">${w_Authors}: $authors</div>`n"
-  $res += "    <div class=`"booklist-detail`">${w_Publisher}: $($info.Publisher)</div>`n"
-  $res += "    <div class=`"booklist-detail`">${w_PublicationDate}: $($info.PublicationDate)</div>`n"
-  $res += "    <div class=`"booklist-detail`">${w_PublicationLanguage}: $($info.PublicationLanguage)</div>`n"
-  $res += "    <div class=`"booklist-detail`">${w_Pages}: $($info.Pages)</div>`n"
-  $res += "    <div class=`"booklist-detail`">${w_Binding}: $($info.Binding)</div>`n"
+  if ($info.Publisher) {
+    $res += "    <div class=`"booklist-detail`">${w_Publisher}: $($info.Publisher)</div>`n"
+  }
+  if ($info.PublicationDate) {
+    $res += "    <div class=`"booklist-detail`">${w_PublicationDate}: $($info.PublicationDate)</div>`n"
+  }
+  if ($info.PublicationLanguage) {
+    $res += "    <div class=`"booklist-detail`">${w_PublicationLanguage}: $($info.PublicationLanguage)</div>`n"
+  }
+  if ($info.Pages) {
+    $res += "    <div class=`"booklist-detail`">${w_Pages}: $($info.Pages)</div>`n"
+  }
+  if ($info.Binding) {
+    $res += "    <div class=`"booklist-detail`">${w_Binding}: $($info.Binding)</div>`n"
+  }
   $res += "    <div class=`"booklist-detail`">${w_ISBN}: $($info.ISBN)</div>`n"
   $res += "    <div class=`"booklist-detail`">${w_EAN}: $($info.EAN)</div>`n"
   $res += "  </div>`n"
