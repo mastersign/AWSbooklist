@@ -1,4 +1,10 @@
-param ($listFile, $targetFile = $null, [switch]$noFragment, [switch]$noStyles)
+param (
+  $listFile, 
+  $targetFile = $null,
+  $server = "ecs.amazonaws.com",
+  [switch]$noFragment, 
+  [switch]$noStyles
+)
 
 $myPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
@@ -50,7 +56,7 @@ foreach($isbn in $list) {
   if (($isbn.Length -eq 0) -or ($isbn.StartsWith("#"))) { continue }
   $isbn = $isbn.Replace(" ", "").Replace("-", "")
 
-  $info = & "$myPath\Get-BookInfo.ps1" -isbn $isbn
+  $info = & "$myPath\Get-BookInfo.ps1" -isbn $isbn -server $server
   
   if (!$info) {
     Write-Warning "Could not obtain information about $isbn."

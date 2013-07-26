@@ -1,6 +1,7 @@
-param ($isbn = $(Read-Host "ISBN"))
-$ErrorActionPreference = "Stop"
-
+param (
+    $isbn = $(Read-Host "ISBN"), 
+    $server = "ecs.amazonaws.com"
+)
 $myPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
 $parameter = @{
@@ -13,7 +14,7 @@ $parameter = @{
     "ResponseGroup" = "ItemAttributes,Images" 
     }
 
-[xml]$doc = & "$myPath\Invoke-AmazonApi.ps1" $parameter
+[xml]$doc = & "$myPath\Invoke-AmazonApi.ps1" $parameter -server $server
 
 if (!$doc) { return $null }
 
