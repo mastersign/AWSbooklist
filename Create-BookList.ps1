@@ -50,19 +50,68 @@ if ($noFragment) {
     $res += "<h1>Book List</h1>`n"
 }
 
-foreach($isbn in $list) {
-  if ($isbn -eq $null) { continue }
+function normalize-isbn($isbn) {
   $isbn = $isbn.Trim()
   if (($isbn.Length -eq 0) -or ($isbn.StartsWith("#"))) { continue }
   $isbn = $isbn.Replace(" ", "").Replace("-", "")
+  return $isbn
+}
 
-  $info = & "$myPath\Get-BookInfo.ps1" -isbn $isbn -server $server
-  
+function count() {
+  begin {
+    $n = 0
+  }
+  process {
+    $n = $n + 1
+  }
+  end {
+    return $n
+  }
+}
+
+function info-fitness($info) {
+  return $info.Values | ? { ![string]::IsNullOrEmpty($_) } | count
+}
+
+function best-info($infos) {
+  $res = $null
+  $max_fit = 0
+  foreach ($info in $infos) {
+    $fit = info-fitness $info
+    # Write-Host "Fitness for $($info.Title) from $($info.Source): $fit"
+    if ($fit -gt $max_fit) {
+      $max_fit = $fit
+      $res = $info
+    }
+  }
+  return $res
+}
+
+function get-info($svr, $isbn) {
+  if ($svr -is [array]) {
+    $infos = @()
+    foreach ($s in $svr) {
+      $info = & "$myPath\Get-BookInfo.ps1" -isbn $isbn -server $s
+      if (!$info) { continue }
+      $info.Add("Source", $s)
+      $infos += $info
+    }
+    return best-info $infos
+  } else {
+    return & "$myPath\Get-BookInfo.ps1" -isbn $isbn -server $svr
+  }
+}
+
+foreach($isbn in $list) {
+  if ($isbn -eq $null) { continue }
+  $isbn = normalize-isbn $isbn
+  $info = get-info $server $isbn
+ 
   if (!$info) {
     Write-Warning "Could not obtain information about $isbn."
     continue
   }
-
+  
   $authors = [string]::Join(", ", $info.Authors)
   
   $res += "<div id=`"book_$($info.ASIN)`" class=`"booklist-item`">`n"

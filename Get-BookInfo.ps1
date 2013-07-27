@@ -8,11 +8,11 @@ $parameter = @{
     "Service" = "AWSECommerceService";
     "Version" = "2009-03-31";
     "Operation" = "ItemLookup";
-    "ItemId" = $isbn;
     "IdType" = "ISBN";
+    "ItemId" = $isbn;
     "SearchIndex" = "Books";
-    "ResponseGroup" = "ItemAttributes,Images" 
-    }
+    "ResponseGroup" = "ItemAttributes,Images";
+}
 
 [xml]$doc = & "$myPath\Invoke-AmazonApi.ps1" $parameter -server $server
 
