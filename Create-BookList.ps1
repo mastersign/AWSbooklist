@@ -37,7 +37,7 @@ if (!$noStyles) {
     $res += "<style type=`"text/css`">
 .booklist-item { margin-bottom: 1em; }
 .booklist-image { float: left; }
-.booklist-description { margin-left: 160px; }
+.booklist-description { margin-left: 180px; }
 .booklist-title { font-weight: bold; margin-bottom: 0.25em; }
 .booklist-authors { font-style: italic; margin-bottom: 0.25em; }
 .booklist-detail { font-size: smaller; }
