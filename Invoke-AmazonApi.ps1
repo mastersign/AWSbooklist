@@ -5,6 +5,9 @@
   $path = "/onca/xml"
 )
 
+$retryNumber = 5
+$retryPause = 5000
+
 $myPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 if (-not (Test-Path "$myPath\aws.config.ps1")) {
   throw "No AWS configuration found. Use the template to create the aws.config.ps1 file."
@@ -87,5 +90,20 @@ $signature = compute-hmac-sha256 $signingData $awsPrivateKey
 $query += "&Signature=" + (url-encode $signature)
 $url = "${protocol}://${server}${path}?${query}"
 
-$result = Invoke-RestMethod $url
+for ($i = 0; $i -lt $retryNumber; $i++) {
+  try {
+    $result = Invoke-RestMethod $url
+    if ($i -gt 0) {
+      Write-Warning "... succeeded."
+    }
+    break
+  } catch {
+    if ($i -ge ($retryNumber - 1)) { 
+      throw 
+    } else {
+      Write-Warning "Amazon API invocation failed with: `n`t$($_.Exception.Message)`n`t... wait and retry ..."
+      [Threading.Thread]::Sleep($retryPause)
+    }
+  }
+}
 return $result
